@@ -51,7 +51,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
       
       <div className="flex items-center gap-3">
         {loading ? (
-           <Skeleton className="h-8 w-1/2" />
+           <Skeleton className="h-8 w-full" />
         ) : (
           <input
             type="text"
