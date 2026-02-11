@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Layout } from '../components/layout/Layout';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import type { Resource, CreateResourceDTO } from '../services/api';
-import { resourceService } from '../services/api';
+import { Layout } from '../../components/layout/Layout';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import type { Resource, CreateResourceDTO } from '../../services/api';
+import { resourceService } from '../../services/api';
 import { Plus, Search, Edit2, Trash2} from 'lucide-react';
 import { Modal, Form, Select, Input as AntInput, message, Popconfirm, Tag, Pagination } from 'antd';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 const { Option } = Select;
 
 export const ResourceList = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [resources, setResources] = useState<Resource[]>([]);
-  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
@@ -24,25 +27,23 @@ export const ResourceList = () => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchResources = async () => {
-    setLoading(true);
-    try {
+  const { isLoading } = useQuery({
+    queryKey: ['resources', { search, statusFilter, page, pageSize }],
+    queryFn: async () => {
       const result = await resourceService.getAll({ name: search, status: statusFilter, page, limit: pageSize });
       setResources(result.data);
       setTotal(result.meta.total);
-    } catch (error) {
-      // message.error('Failed to fetch resources');
-    } finally {
-      setLoading(false);
-    }
-  };
+      return result;
+    },
+    placeholderData: keepPreviousData,
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchResources();
-    }, 300); // Debounce search
+      queryClient.invalidateQueries({ queryKey: ['resources'] });
+    }, 300);
     return () => clearTimeout(timer);
-  }, [search, statusFilter, page, pageSize]);
+  }, [search, statusFilter, page, pageSize, queryClient]);
 
   useEffect(() => {
     setPage(1);
@@ -60,15 +61,16 @@ export const ResourceList = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await resourceService.delete(id);
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => resourceService.delete(id),
+    onSuccess: () => {
       message.success('Resource deleted successfully');
-      fetchResources();
-    } catch (error) {
+      queryClient.invalidateQueries({ queryKey: ['resources'] });
+    },
+    onError: () => {
       message.error('Failed to delete resource');
-    }
-  };
+    },
+  });
 
   const handleSubmit = async (values: CreateResourceDTO) => {
     setSubmitting(true);
@@ -81,7 +83,7 @@ export const ResourceList = () => {
         message.success('Resource created successfully');
       }
       setIsModalOpen(false);
-      fetchResources();
+      queryClient.invalidateQueries({ queryKey: ['resources'] });
     } catch (error) {
       message.error('Operation failed');
     } finally {
@@ -127,7 +129,7 @@ export const ResourceList = () => {
       </div>
 
       {/* Grid View */}
-      {loading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="h-48 bg-background-secondary animate-pulse rounded-2xl border border-gray-800" />
@@ -149,6 +151,7 @@ export const ResourceList = () => {
             <div 
               key={resource.id} 
               className="group bg-background-secondary rounded-2xl border border-gray-800 p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 relative overflow-hidden"
+              onClick={() => navigate(`/resources/${resource.id}`)}
             >
               <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                 <Button 
@@ -162,7 +165,7 @@ export const ResourceList = () => {
                 <Popconfirm
                   title="Delete resource"
                   description="Are you sure you want to delete this resource?"
-                  onConfirm={() => handleDelete(resource.id)}
+                  onConfirm={() => deleteMutation.mutate(resource.id)}
                   okText="Yes"
                   cancelText="No"
                   okButtonProps={{ className: 'bg-status-danger' }}

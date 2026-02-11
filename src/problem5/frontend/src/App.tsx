@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ResourceList } from './pages/ResourceList';
+import { ResourceList } from './pages/resources/ResourceList';
+import { ResourceDetail } from './pages/resources/ResourceDetail';
 import { ConfigProvider, theme } from 'antd';
 
 const App = () => {
@@ -35,6 +36,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Navigate to="/resources" replace />} />
           <Route path="/resources" element={<ResourceList />} />
+          <Route path="/resources/:id" element={<ResourceDetail />} />
           <Route path="*" element={<Navigate to="/resources" replace />} />
         </Routes>
       </Router>
