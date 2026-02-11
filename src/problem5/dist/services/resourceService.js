@@ -11,13 +11,19 @@ class ResourceService {
     async createResource(data) {
         return this.resourceRepository.create(data);
     }
-    async getResources(status, name) {
+    async getResources(status, name, page = 1, limit = 10) {
         const filter = {};
         if (status)
             filter.status = status;
         if (name)
             filter.name = { contains: name };
-        return this.resourceRepository.findAll(filter);
+        const skip = (page - 1) * limit;
+        const [items, total] = await Promise.all([
+            this.resourceRepository.findAll(filter, skip, limit),
+            this.resourceRepository.count(filter),
+        ]);
+        const totalPages = Math.max(1, Math.ceil(total / limit));
+        return { items, meta: { page, limit, total, totalPages } };
     }
     async getResourceById(id) {
         const resource = await this.resourceRepository.findById(id);

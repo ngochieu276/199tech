@@ -13,11 +13,17 @@ export interface Resource {
 
 export type CreateResourceDTO = Omit<Resource, 'id' | 'createdAt' | 'updatedAt'>;
 export type UpdateResourceDTO = Partial<CreateResourceDTO>;
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
 
 export const resourceService = {
-  getAll: async (params?: { status?: string; name?: string }) => {
-    const response = await axios.get<{ status: string; data: Resource[] }>(API_URL, { params });
-    return response.data.data;
+  getAll: async (params?: { status?: string; name?: string; page?: number; limit?: number }) => {
+    const response = await axios.get<{ status: string; data: Resource[]; meta: PaginationMeta }>(API_URL, { params });
+    return response.data;
   },
 
   getById: async (id: number) => {

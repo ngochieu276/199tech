@@ -6,8 +6,12 @@ export class ResourceRepository {
     return prisma.resource.create({ data });
   }
 
-  async findAll(filter: Prisma.ResourceWhereInput): Promise<Resource[]> {
-    return prisma.resource.findMany({ where: filter });
+  async findAll(filter: Prisma.ResourceWhereInput, skip?: number, take?: number): Promise<Resource[]> {
+    return prisma.resource.findMany({ where: filter, skip, take, orderBy: { updatedAt: 'desc' } });
+  }
+
+  async count(filter: Prisma.ResourceWhereInput): Promise<number> {
+    return prisma.resource.count({ where: filter });
   }
 
   async findById(id: number): Promise<Resource | null> {

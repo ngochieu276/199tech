@@ -9,8 +9,11 @@ class ResourceRepository {
     async create(data) {
         return prisma_1.default.resource.create({ data });
     }
-    async findAll(filter) {
-        return prisma_1.default.resource.findMany({ where: filter });
+    async findAll(filter, skip, take) {
+        return prisma_1.default.resource.findMany({ where: filter, skip, take, orderBy: { updatedAt: 'desc' } });
+    }
+    async count(filter) {
+        return prisma_1.default.resource.count({ where: filter });
     }
     async findById(id) {
         return prisma_1.default.resource.findUnique({ where: { id } });

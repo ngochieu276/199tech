@@ -5,7 +5,7 @@ import { Input } from '../components/ui/Input';
 import type { Resource, CreateResourceDTO } from '../services/api';
 import { resourceService } from '../services/api';
 import { Plus, Search, Edit2, Trash2} from 'lucide-react';
-import { Modal, Form, Select, Input as AntInput, message, Popconfirm, Tag } from 'antd';
+import { Modal, Form, Select, Input as AntInput, message, Popconfirm, Tag, Pagination } from 'antd';
 
 const { Option } = Select;
 
@@ -14,6 +14,9 @@ export const ResourceList = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(9);
+  const [total, setTotal] = useState(0);
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,10 +27,11 @@ export const ResourceList = () => {
   const fetchResources = async () => {
     setLoading(true);
     try {
-      const data = await resourceService.getAll({ name: search, status: statusFilter });
-      setResources(data);
+      const result = await resourceService.getAll({ name: search, status: statusFilter, page, limit: pageSize });
+      setResources(result.data);
+      setTotal(result.meta.total);
     } catch (error) {
-      message.error('Failed to fetch resources');
+      // message.error('Failed to fetch resources');
     } finally {
       setLoading(false);
     }
@@ -38,6 +42,10 @@ export const ResourceList = () => {
       fetchResources();
     }, 300); // Debounce search
     return () => clearTimeout(timer);
+  }, [search, statusFilter, page, pageSize]);
+
+  useEffect(() => {
+    setPage(1);
   }, [search, statusFilter]);
 
   const handleCreate = () => {
@@ -256,6 +264,18 @@ export const ResourceList = () => {
           </div>
         </Form>
       </Modal>
+      <div className="mt-8 flex justify-center">
+        <Pagination
+          current={page}
+          pageSize={pageSize}
+          total={total}
+          showSizeChanger
+          onChange={(p, ps) => {
+            setPage(p);
+            setPageSize(ps);
+          }}
+        />
+      </div>
     </Layout>
   );
 };

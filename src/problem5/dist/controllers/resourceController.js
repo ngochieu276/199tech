@@ -10,9 +10,9 @@ const createResource = async (req, res) => {
 };
 exports.createResource = createResource;
 const getResources = async (req, res) => {
-    const { status, name } = req.query;
-    const resources = await resourceService.getResources(status, name);
-    res.status(http_status_codes_1.StatusCodes.OK).json({ status: 'success', data: resources });
+    const { status, name, page, limit } = req.query;
+    const result = await resourceService.getResources(status, name, page ? parseInt(page) : undefined, limit ? parseInt(limit) : undefined);
+    res.status(http_status_codes_1.StatusCodes.OK).json({ status: 'success', data: result.items, meta: result.meta });
 };
 exports.getResources = getResources;
 const getResource = async (req, res) => {
