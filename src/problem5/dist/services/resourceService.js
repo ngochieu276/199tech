@@ -16,7 +16,7 @@ class ResourceService {
         if (status)
             filter.status = status;
         if (name)
-            filter.name = { contains: name };
+            filter.name = { contains: name, mode: 'insensitive' };
         const skip = (page - 1) * limit;
         const [items, total] = await Promise.all([
             this.resourceRepository.findAll(filter, skip, limit),

@@ -17,7 +17,7 @@ export class ResourceService {
   async getResources(status?: string, name?: string, page: number = 1, limit: number = 10): Promise<{ items: Resource[]; meta: { page: number; limit: number; total: number; totalPages: number } }> {
     const filter: any = {};
     if (status) filter.status = status;
-    if (name) filter.name = { contains: name };
+    if (name) filter.name = { contains: name, mode: 'insensitive' };
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
       this.resourceRepository.findAll(filter, skip, limit),
