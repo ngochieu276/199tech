@@ -45,7 +45,7 @@ export const TokenModal: React.FC<TokenModalProps> = ({ isOpen, onClose, onSelec
         </div>
       </div>
 
-      <div className="space-y-1 max-h-[400px] overflow-y-auto -mx-2 px-2 custom-scrollbar">
+      <div className="space-y-1 max-h-[400px] overflow-y-auto overflow-x-hidden px-2 custom-scrollbar">
         {filteredTokens.map(token => (
           <button
             key={token.symbol}
