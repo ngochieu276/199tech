@@ -1,6 +1,6 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:3000/api/resources';
+const ORIGIN = (import.meta.env.VITE_BACKEND_URL as string) || 'http://localhost:3000';
+const API_URL = `${ORIGIN}/api/resources`;
 
 export interface Resource {
   id: number;

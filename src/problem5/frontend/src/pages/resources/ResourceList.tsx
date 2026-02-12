@@ -5,7 +5,7 @@ import { Input } from '../../components/ui/Input';
 import type { Resource, CreateResourceDTO } from '../../services/api';
 import { resourceService } from '../../services/api';
 import { Plus, Search, Edit2, Trash2, Grid2X2, Table2Icon} from 'lucide-react';
-import { Modal, Form, Select, Input as AntInput, message, Popconfirm, Tag, Pagination, Table, Grid } from 'antd';
+import { Modal, Form, Select, Input as AntInput, message, Popconfirm, Tag, Pagination, Table } from 'antd';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
