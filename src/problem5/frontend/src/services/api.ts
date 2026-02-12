@@ -1,5 +1,5 @@
 import axios from 'axios';
-const ORIGIN = (import.meta.env.VITE_BACKEND_URL as string) || 'http://localhost:3000';
+const ORIGIN = (import.meta.env.BACKEND_URL as string) || 'http://localhost:3000';
 const API_URL = `${ORIGIN}/api/resources`;
 
 export interface Resource {
